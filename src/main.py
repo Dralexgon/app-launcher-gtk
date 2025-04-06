@@ -90,12 +90,12 @@ class AppLauncher(Gtk.Window):
                 if icon_image:
                     icon_file: Gio.File = icon_image.get_file()
                     icon_path = icon_file.get_path()
-                    icon_path = "test.png"
+                    icon_path = "test/org.gnome.Weather.svg"
                     if icon_path.endswith(".png"):
-                        icons.append(cairo.ImageSurface.create_from_png(icon_file.get_path()))
+                        icons.append(cairo.ImageSurface.create_from_png(icon_path))
                     elif icon_path.endswith(".svg"):
-                        print("Opening SVG icon:", icon_path)
-                        icons.append(cairo.SVGSurface(icon_file.get_path(), icon_image.get_intrinsic_width(), icon_image.get_intrinsic_height()))
+                        #icons.append(cairo.SVGSurface(icon_path, icon_image.get_intrinsic_width(), icon_image.get_intrinsic_height()))
+                        icons.append(cairo.SVGSurface(icon_path, 128, 128))
                     else:
                         # Handle other formats if needed
                         pass
