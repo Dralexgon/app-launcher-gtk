@@ -1,49 +1,50 @@
-# Load Gtk
 import gi
-gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, Gdk
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Gdk, Gio
 
-from apps import *
+class MyWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(application=app)
+        self.set_default_size(1300, 700)
+        self.set_decorated(False)
+        self.set_css_classes(["my-window"])
 
-# When the application is launched…
-def on_activate(app):
-    # … create a new window…
-    win = Gtk.ApplicationWindow(application=app)
-    # … with a button in it…
-    #btn = Gtk.Button(label='Hello, World!')
-    # … which closes the window when clicked
-    #btn.connect('clicked', lambda x: win.close())
-    #win.set_child(btn)
+        # button = Gtk.Button(label="Hello, GTK4!")
+        # button.set_css_classes(["my-button"])
+        # self.set_child(button)
 
-    label = Gtk.Label(label="Hello, GTK4!")
-    win.set_child(label)
+        label = Gtk.Label(label="Hello, GTK4!")
+        self.set_child(label)
 
-    win.set_default_size(400, 400)
-    css = b"""
-    #my-window {
-        background-color: #ca1dc2;
-    }
-    
-    .custom-box {
-        background-color: #ca1dc2;
-    }
-    """
-    provider = Gtk.CssProvider()
-    provider.load_from_data(css)
-    display = Gdk.Display.get_default()
-    Gtk.StyleContext.add_provider_for_display(
-        display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-    )
 
-    box = Gtk.Box()
-    box.set_css_classes(["custom-box"])
-    win.set_child(box)
+class MyApp(Gtk.Application):
+    def __init__(self):
+        super().__init__(application_id="com.example.GtkApp")
 
-    win.present()
+    def do_activate(self):
+        self.load_css()
+        win = MyWindow(self)
+        win.present()
 
-# Create a new application
-app = Gtk.Application(application_id='com.example.GtkApplication')
-app.connect('activate', on_activate)
+    def load_css(self):
+        css = b"""
+        .my-window {
+            background-color: #ca1dc200;
+        }
+        
+        .my-button {
+            background-color: #ca1dc2ff;
+            width: 150px;
+            height: 50px;
+        }
+        """
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(
+            display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
-# Run the application
+
+app = MyApp()
 app.run(None)
