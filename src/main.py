@@ -11,16 +11,16 @@ class AppLauncher(Gtk.Window):
         self.app = app
 
         # Window setup
-        self.set_default_size(400, 400)
-        #self.set_border_width(0)
-        self.set_resizable(False)
+        #self.set_default_size(1920, 1080)
+        self.set_default_size(960, 540)
+        #self.fullscreen() #enable later
+        self.set_decorated(False)
+        self.maximize()
+        self.set_css_classes(["my-window"])
 
         self.box1 = Gtk.Box()
+        self.box1.set_css_classes(["my-box"])
         self.set_child(self.box1)
-
-        # Centering the window
-        #screen = self.get_screen()
-        #self.set_position(Gtk.WindowPosition.CENTER)
 
         # Drawing area (where the magic happens)
         self.drawing_area = Gtk.DrawingArea()
@@ -57,9 +57,9 @@ class AppLauncher(Gtk.Window):
         center_x, center_y = width / 2, height / 2
 
         # Clear the drawing area
-        c.set_source_rgb(0, 0, 0)  # Black background
-        c.rectangle(0, 0, width, height)
-        c.fill()
+        # c.set_source_rgb(0, 0, 0)  # Black background
+        # c.rectangle(0, 0, width, height)
+        # c.fill()
 
         # Draw icons in a circle
         num_icons = len(self.icons)
@@ -119,8 +119,26 @@ class MyApp(Gtk.Application):
         super().__init__(application_id="com.example.GtkApp")
 
     def do_activate(self):
+        self.load_css()
         win = AppLauncher(self)
         win.present()
+
+    def load_css(self):
+        css = b"""
+        .my-window {
+            background-color: #ca1dc200;
+        }
+
+        .my-box {
+            background-color: #ca1dc200;
+        }
+        """
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(
+            display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
 # Run the application
 if __name__ == "__main__":
