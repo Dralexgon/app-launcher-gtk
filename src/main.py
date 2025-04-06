@@ -64,15 +64,15 @@ class AppLauncher(Gtk.Window):
         # Draw icons in a circle
         num_icons = len(self.icons)
         for i, icon in enumerate(self.icons):
-            # angle = self.angle + (i * 2 * math.pi / num_icons)
-            # x = center_x + self.radius * math.cos(angle)
-            # y = center_y + self.radius * math.sin(angle)
+            angle = self.angle + (i * 2 * math.pi / num_icons)
+            x = center_x + self.radius * math.cos(angle)
+            y = center_y + self.radius * math.sin(angle)
 
             # Load and draw icon
             icon_width = 128
             icon_height = 128
             # c.set_source_surface(icon, x - icon_width / 2, y - icon_height / 2)
-            Gdk.cairo_set_source_pixbuf(c, icon, 0, 0)
+            Gdk.cairo_set_source_pixbuf(c, icon,  x - icon_width / 2, y - icon_height / 2)
             c.paint()
 
     def get_app_icons(self):
