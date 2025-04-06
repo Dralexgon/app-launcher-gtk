@@ -72,7 +72,6 @@ class AppLauncher(Gtk.Window):
             icon_width = 128
             icon_height = 128
             # c.set_source_surface(icon, x - icon_width / 2, y - icon_height / 2)
-            #c.set_source_surface(icon, 0, 0)
             Gdk.cairo_set_source_pixbuf(c, icon, 0, 0)
             c.paint()
 
@@ -94,15 +93,18 @@ class AppLauncher(Gtk.Window):
                     icon_path = icon_file.get_path()
                     pixbuf = None
                     if icon_path:
-                        #print(icon_path)
-                        icon_path = "test/org.gnome.Weather.svg"
+                        print(icon_path)
+                        #icon_path = "test/org.gnome.Weather.svg"
                         if icon_path.endswith(".png"):
                             surface = cairo.ImageSurface.create_from_png(icon_path)
                             pixbuf = Gdk.pixbuf_get_from_surface(surface, 0, 0, surface.get_width(), surface.get_height())
                         elif icon_path.endswith(".svg"):
                             #icons.append(cairo.SVGSurface(icon_path, 128, 128)) # WRITE ONLY
-                            handle = Rsvg.Handle.new_from_file(icon_path)
-                            pixbuf = handle.get_pixbuf()
+                            try:
+                                handle = Rsvg.Handle.new_from_file(icon_path)
+                                pixbuf = handle.get_pixbuf()
+                            except:
+                                pass
                         else:
                             # Handle other formats if needed
                             pass
