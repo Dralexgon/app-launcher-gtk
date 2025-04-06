@@ -56,11 +56,6 @@ class AppLauncher(Gtk.Window):
         height = area.get_allocated_height()
         center_x, center_y = width / 2, height / 2
 
-        # Clear the drawing area
-        # c.set_source_rgb(0, 0, 0)  # Black background
-        # c.rectangle(0, 0, width, height)
-        # c.fill()
-
         # Draw icons in a circle
         num_icons = len(self.icons)
         for i, icon in enumerate(self.icons):
@@ -71,7 +66,6 @@ class AppLauncher(Gtk.Window):
             # Load and draw icon
             icon_width = 128
             icon_height = 128
-            # c.set_source_surface(icon, x - icon_width / 2, y - icon_height / 2)
             Gdk.cairo_set_source_pixbuf(c, icon,  x - icon_width / 2, y - icon_height / 2)
             c.paint()
 
@@ -80,8 +74,6 @@ class AppLauncher(Gtk.Window):
         apps = Gio.AppInfo.get_all()
         icons = []
 
-        #icon_theme = Gio.ThemedIcon.get_default()
-        #icon_theme = Gtk.IconTheme.get_default()
         icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
 
         for app in apps:
