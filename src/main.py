@@ -1,7 +1,8 @@
 import gi
 import math
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, Gdk, GLib, Gio
+gi.require_version('Rsvg', '2.0')
+from gi.repository import Gtk, Gdk, GLib, Gio, Rsvg
 import cairo
 
 class AppLauncher(Gtk.Window):
@@ -50,7 +51,7 @@ class AppLauncher(Gtk.Window):
         self.drawing_area.queue_draw()  # Trigger redraw
         return True
 
-    def on_draw(self, area, c, w, h, data):
+    def on_draw(self, area, c: cairo.Context , w, h, data):
         width = area.get_allocated_width()
         height = area.get_allocated_height()
         center_x, center_y = width / 2, height / 2
@@ -71,7 +72,8 @@ class AppLauncher(Gtk.Window):
             icon_width = 128
             icon_height = 128
             # c.set_source_surface(icon, x - icon_width / 2, y - icon_height / 2)
-            c.set_source_surface(icon, 0, 0)
+            #c.set_source_surface(icon, 0, 0)
+            Gdk.cairo_set_source_pixbuf(c, icon, 0, 0)
             c.paint()
 
     def get_app_icons(self):
@@ -90,15 +92,22 @@ class AppLauncher(Gtk.Window):
                 if icon_image:
                     icon_file: Gio.File = icon_image.get_file()
                     icon_path = icon_file.get_path()
-                    icon_path = "test/org.gnome.Weather.svg"
-                    if icon_path.endswith(".png"):
-                        icons.append(cairo.ImageSurface.create_from_png(icon_path))
-                    elif icon_path.endswith(".svg"):
-                        #icons.append(cairo.SVGSurface(icon_path, icon_image.get_intrinsic_width(), icon_image.get_intrinsic_height()))
-                        icons.append(cairo.SVGSurface(icon_path, 128, 128))
-                    else:
-                        # Handle other formats if needed
-                        pass
+                    pixbuf = None
+                    if icon_path:
+                        #print(icon_path)
+                        icon_path = "test/org.gnome.Weather.svg"
+                        if icon_path.endswith(".png"):
+                            surface = cairo.ImageSurface.create_from_png(icon_path)
+                            pixbuf = Gdk.pixbuf_get_from_surface(surface, 0, 0, surface.get_width(), surface.get_height())
+                        elif icon_path.endswith(".svg"):
+                            #icons.append(cairo.SVGSurface(icon_path, 128, 128)) # WRITE ONLY
+                            handle = Rsvg.Handle.new_from_file(icon_path)
+                            pixbuf = handle.get_pixbuf()
+                        else:
+                            # Handle other formats if needed
+                            pass
+                        if pixbuf is not None:
+                            icons.append(pixbuf)
 
 
         return icons

@@ -14,7 +14,8 @@
     {
       packages = [
         pkgs.gtk4
-        pkgs.cairo #if venv
+        pkgs.cairo
+        pkgs.librsvg
         pkgs.pkg-config #if venv
         (pkgs.python3.withPackages (python-pkgs: [
           python-pkgs.pygobject3
