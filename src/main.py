@@ -5,6 +5,8 @@ gi.require_version('Rsvg', '2.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Gio, Rsvg
 import cairo
 
+from random import randint
+
 class AppLauncher(Gtk.Window):
     def __init__(self, app: Gtk.Application):
         super().__init__(title="App Launcher", application=app)
@@ -37,31 +39,35 @@ class AppLauncher(Gtk.Window):
 
         # Circle motion parameters
         self.angle = 0
-        self.radius = 120
+        self.radius = 200
         self.icons = self.get_app_icons()  # Get app icons
+        self.icons = self.icons[:10]  # Limit to 10 icons for now
+        self.offsets = []
+
+        for i in range(len(self.icons)):
+            self.offsets.append(randint(-180, 180))
 
         # Timer for animation
         GLib.timeout_add(1000 // 60, self.on_timeout)  # 60 FPS
 
     def on_timeout(self):
         # Update angle for animation
-        self.angle += 0.05
+        #self.angle += 0.05
+        self.angle += 0.02
         if self.angle >= 2 * math.pi:
             self.angle = 0
         self.drawing_area.queue_draw()  # Trigger redraw
         return True
 
-    def on_draw(self, area, c: cairo.Context , w, h, data):
-        width = area.get_allocated_width()
-        height = area.get_allocated_height()
+    def on_draw(self, area, c: cairo.Context , width, height, data):
         center_x, center_y = width / 2, height / 2
 
         # Draw icons in a circle
         num_icons = len(self.icons)
         for i, icon in enumerate(self.icons):
-            angle = self.angle + (i * 2 * math.pi / num_icons)
-            x = center_x + self.radius * math.cos(angle)
-            y = center_y + self.radius * math.sin(angle)
+            angle = self.angle + (i * 2 * math.pi / num_icons) + self.offsets[i]
+            x = center_x + (self.radius +  i * 30) * math.cos(angle)
+            y = center_y + (self.radius +  i * 30) * math.sin(angle)
 
             # Load and draw icon
             icon_width = 128
@@ -85,8 +91,7 @@ class AppLauncher(Gtk.Window):
                     icon_path = icon_file.get_path()
                     pixbuf = None
                     if icon_path:
-                        print(icon_path)
-                        #icon_path = "test/org.gnome.Weather.svg"
+                        #print(icon_path)
                         if icon_path.endswith(".png"):
                             surface = cairo.ImageSurface.create_from_png(icon_path)
                             pixbuf = Gdk.pixbuf_get_from_surface(surface, 0, 0, surface.get_width(), surface.get_height())
