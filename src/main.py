@@ -2,7 +2,7 @@ import gi
 import math
 gi.require_version('Gtk', '4.0')
 gi.require_version('Rsvg', '2.0')
-from gi.repository import Gtk, Gdk, GLib, Gio, Rsvg
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Gio, Rsvg
 import cairo
 
 class AppLauncher(Gtk.Window):
@@ -101,6 +101,7 @@ class AppLauncher(Gtk.Window):
                             # Handle other formats if needed
                             pass
                         if pixbuf is not None:
+                            pixbuf = pixbuf.scale_simple(128, 128, GdkPixbuf.InterpType.BILINEAR)
                             icons.append(pixbuf)
 
 
