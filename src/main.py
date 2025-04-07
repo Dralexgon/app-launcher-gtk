@@ -1,10 +1,10 @@
 import gi
-import math
 gi.require_version('Gtk', '4.0')
-gi.require_version('Rsvg', '2.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Gio, Rsvg
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Gio
 import cairo
 
+import math
+import time
 from random import randint
 
 class AppLauncher(Gtk.Window):
@@ -48,6 +48,8 @@ class AppLauncher(Gtk.Window):
             self.offsets.append(randint(-180, 180))
 
         # Timer for animation
+        self.fps_count = 0
+        self.fps_timer = time.time()
         GLib.timeout_add(1000 // 60, self.on_timeout)  # 60 FPS
 
     def on_timeout(self):
@@ -75,6 +77,15 @@ class AppLauncher(Gtk.Window):
             Gdk.cairo_set_source_pixbuf(c, icon,  x - icon_width / 2, y - icon_height / 2)
             c.paint()
 
+        self.fps_count += 1
+        if time.time() - self.fps_timer >= 1:
+            print(f"FPS: {self.fps_count}")
+            self.fps_count = 0
+            self.fps_timer = time.time()
+        # c.move_to(0, 0)
+        # c.show_text("Hello World")
+        # c.paint()
+
     def get_app_icons(self):
         # Fetch icons from desktop applications (using .desktop files)
         apps = Gio.AppInfo.get_all()
@@ -89,21 +100,11 @@ class AppLauncher(Gtk.Window):
                 if icon_image:
                     icon_file: Gio.File = icon_image.get_file()
                     icon_path = icon_file.get_path()
-                    pixbuf = None
                     if icon_path:
-                        #print(icon_path)
-                        if icon_path.endswith(".png"):
-                            surface = cairo.ImageSurface.create_from_png(icon_path)
-                            pixbuf = Gdk.pixbuf_get_from_surface(surface, 0, 0, surface.get_width(), surface.get_height())
-                        elif icon_path.endswith(".svg"):
-                            #icons.append(cairo.SVGSurface(icon_path, 128, 128)) # WRITE ONLY
-                            try:
-                                handle = Rsvg.Handle.new_from_file(icon_path)
-                                pixbuf = handle.get_pixbuf()
-                            except:
-                                pass
-                        else:
-                            # Handle other formats if needed
+                        pixbuf = None
+                        try:
+                            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon_path, 128, 128, preserve_aspect_ratio=True)
+                        except:
                             pass
                         if pixbuf is not None:
                             pixbuf = pixbuf.scale_simple(128, 128, GdkPixbuf.InterpType.BILINEAR)
