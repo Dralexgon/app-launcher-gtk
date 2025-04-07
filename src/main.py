@@ -2,18 +2,18 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
+from math import sqrt, sin, cos, pi
+
 import OpenGL.GL as gl
 import numpy as np
 
 VERTEX_SHADER_SRC = """
-#version 330
-layout(location = 0) in vec2 position;
-layout(location = 1) in vec3 color;
-out vec3 v_color;
-void main() {
-    v_color = color;
-    gl_Position = vec4(position, 0.0, 1.0);
-}
+#version 330 core
+layout (location = 0) in vec3 aPos;
+void main()
+{
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+};
 """
 
 FRAGMENT_SHADER_SRC = """
@@ -24,6 +24,12 @@ void main() {
     frag_color = vec4(v_color, 1.0);
 }
 """
+
+VERTICES = [
+    -0.5, -0.5 * sqrt(3) / 3, 0.0,
+    0.5, -0.5 * sqrt(3) / 3, 0.0,
+    0.0, 0.5 * sqrt(3) * 2 / 3, 0.0,
+]
 
 class OpenGLWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
@@ -41,19 +47,16 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.set_child(self.gl_area)
 
     def on_realize(self, area: Gtk.GLArea):
-        context = self.gl_area.get_context()
-        if not context:
-            print("Failed to get GL context")
-            return
-        print("OpenGL context realized")
-
+        vertex_shader = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        gl.glShaderSource(vertex_shader, VERTEX_SHADER_SRC)
+        gl.glCompileShader(vertex_shader)
+        #assert gl.glGetShaderiv(vertex_shader, gl.GL_COMPILE_STATUS)
 
     def on_render(self, area, context):
         #gl.glViewport(0, 0, 800, 600)
 
         gl.glClearColor(0.1, 0.7, 0.1, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-
 
         return True
 
