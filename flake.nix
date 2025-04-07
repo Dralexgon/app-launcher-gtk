@@ -14,10 +14,11 @@
     {
       packages = [
         pkgs.gtk4
-        pkgs.cairo
-        pkgs.pkg-config #if venv
+        #pkgs.cairo
+        pkgs.pkg-config #if .venv
         (pkgs.python3.withPackages (python-pkgs: [
           python-pkgs.pygobject3
+          python-pkgs.pyopengl
         ]))
       ];
 
