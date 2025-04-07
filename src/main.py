@@ -2,7 +2,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib, Gdk, GLib, GObject
 
-import OpenGL.GL as gl
+from OpenGL.GL import *
 
 class OpenGLWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
@@ -11,24 +11,56 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.set_title("GTK4 OpenGL Example")
 
         self.gl_area = Gtk.GLArea()
-        self.gl_area.set_auto_render(True)
+        #self.gl_area.set_auto_render(True)
         self.gl_area.connect("realize", self.on_realize)
         self.gl_area.connect("render", self.on_render)
-        self.gl_area.set_required_version(3, 3)
+        #self.gl_area.set_required_version(3, 3)
 
         self.set_child(self.gl_area)
 
-    def on_realize(self, area):
-        context = self.gl_area.get_context()
-        if not context:
-            print("Failed to get GL context")
-            return
-        print("OpenGL context realized")
+    def on_render(self, area: Gtk.GLArea, context: Gdk.GLContext):
+        area.make_current()
 
-    def on_render(self, area, context):
-        gl.glClearColor(0.3, 0.0, 0.0, 1.0)  # Dark red
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        #w = area.get_allocated_width()
+        w = area.get_width()
+        #h = area.get_allocated_height()
+        h = area.get_height()
+        glViewport(0, 0, w, h)
+
+        # inside this function it's safe to use GL; the given
+        # Gdk.GLContext has been made current to the drawable
+        # surface used by the Gtk.GLArea and the viewport has
+        # already been set to be the size of the allocation
+        # we can start by clearing the buffer
+        glClearColor(1, 1, 1, 0)
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        # draw your object
+        glColor3f(0, 0, 0)
+        glBegin(GL_TRIANGLES)
+        glVertex3f ( 0.0, 1.0, 0.0)
+        glVertex3f (-1.0,-1.0, 0.0)
+        glVertex3f ( 1.0,-1.0, 0.0)
+        glEnd()
+
+        # we completed our drawing; the draw commands will be
+        # flushed at the end of the signal emission chain, and
+        # the buffers will be drawn on the window
         return True
+
+    def on_realize(self, area: Gtk.GLArea):
+        # We need to make the context current if we want to
+        # call GL API
+        area.make_current()
+
+        # If there were errors during the initialization or
+        # when trying to make the context current, this
+        # function will return a Gio.Error for you to catch
+        if area.get_error() is not None:
+          return
+
+        #self.init_buffers()
+        #self.init_shaders()
 
 
 class OpenGLApp(Gtk.Application):
