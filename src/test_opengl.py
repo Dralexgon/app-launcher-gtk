@@ -5,26 +5,6 @@ from gi.repository import Gtk
 import OpenGL.GL as gl
 import numpy as np
 
-VERTEX_SHADER_SRC = """
-#version 330
-layout(location = 0) in vec2 position;
-layout(location = 1) in vec3 color;
-out vec3 v_color;
-void main() {
-    v_color = color;
-    gl_Position = vec4(position, 0.0, 1.0);
-}
-"""
-
-FRAGMENT_SHADER_SRC = """
-#version 330
-in vec3 v_color;
-out vec4 frag_color;
-void main() {
-    frag_color = vec4(v_color, 1.0);
-}
-"""
-
 class OpenGLWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
         super().__init__(application=app)
@@ -40,33 +20,10 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.set_child(self.gl_area)
 
         # OpenGL objects
-        self.program = None
         self.vao = None
 
     def on_realize(self, area):
         area.make_current()
-
-        # Compile shaders
-        vertex_shader = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-        gl.glShaderSource(vertex_shader, VERTEX_SHADER_SRC)
-        gl.glCompileShader(vertex_shader)
-        # assert gl.glGetShaderiv(vertex_shader, gl.GL_COMPILE_STATUS)
-
-        fragment_shader = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-        gl.glShaderSource(fragment_shader, FRAGMENT_SHADER_SRC)
-        gl.glCompileShader(fragment_shader)
-        # assert gl.glGetShaderiv(fragment_shader, gl.GL_COMPILE_STATUS)
-
-        # Create program
-        self.program = gl.glCreateProgram()
-        gl.glAttachShader(self.program, vertex_shader)
-        gl.glAttachShader(self.program, fragment_shader)
-        gl.glLinkProgram(self.program)
-        # assert gl.glGetProgramiv(self.program, gl.GL_LINK_STATUS)
-
-        # Clean up shaders (they're linked now)
-        gl.glDeleteShader(vertex_shader)
-        gl.glDeleteShader(fragment_shader)
 
         # Triangle data (3 vertices, 2D positions + RGB colors)
         vertices = np.array([
@@ -96,7 +53,6 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         gl.glClearColor(0.1, 0.1, 0.1, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        #gl.glUseProgram(self.program)
         gl.glBindVertexArray(self.vao)
         gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
         gl.glBindVertexArray(0)

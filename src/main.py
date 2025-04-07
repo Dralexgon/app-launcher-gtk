@@ -40,7 +40,7 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.gl_area = Gtk.GLArea()
         self.gl_area.set_auto_render(True)
         #self.gl_area.set_required_version(3, 2) work but not sure
-        self.gl_area.set_required_version(3, 1)
+        self.gl_area.set_required_version(3, 2)
         self.gl_area.connect("realize", self.on_realize)
         self.gl_area.connect("render", self.on_render)
 
