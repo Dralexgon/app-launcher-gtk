@@ -55,7 +55,7 @@ class AppLauncher(Gtk.Window):
     def on_timeout(self):
         # Update angle for animation
         #self.angle += 0.05
-        self.angle += 0.02
+        self.angle += 0.01
         if self.angle >= 2 * math.pi:
             self.angle = 0
         self.drawing_area.queue_draw()  # Trigger redraw

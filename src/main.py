@@ -4,6 +4,7 @@ from gi.repository import Gtk
 
 from math import sqrt, sin, cos, pi
 
+import time
 import OpenGL.GL as gl
 import numpy as np
 
@@ -39,7 +40,6 @@ class OpenGLWindow(Gtk.ApplicationWindow):
 
         self.gl_area = Gtk.GLArea()
         self.gl_area.set_auto_render(True)
-        #self.gl_area.set_required_version(3, 2) work but not sure
         self.gl_area.set_required_version(3, 2)
         self.gl_area.connect("realize", self.on_realize)
         self.gl_area.connect("render", self.on_render)
@@ -52,11 +52,13 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         gl.glCompileShader(vertex_shader)
         #assert gl.glGetShaderiv(vertex_shader, gl.GL_COMPILE_STATUS)
 
-    def on_render(self, area, context):
-        #gl.glViewport(0, 0, 800, 600)
-
-        gl.glClearColor(0.1, 0.7, 0.1, 1.0)
+    def on_render(self, area: Gtk.GLArea, context):
+        val = time.time() % 1
+        print("test")
+        gl.glClearColor(val, val, val, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+
+        gl.glFlush()
 
         return True
 
