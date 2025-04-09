@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from math import sqrt, sin, cos, pi
 
@@ -46,16 +46,33 @@ class OpenGLWindow(Gtk.ApplicationWindow):
 
         self.set_child(self.gl_area)
 
+        GLib.timeout_add(1000 // 60, self.test)
+
+    def test(self):
+        self.gl_area.queue_draw()
+        return True
+
     def on_realize(self, area: Gtk.GLArea):
-        vertex_shader = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-        gl.glShaderSource(vertex_shader, VERTEX_SHADER_SRC)
-        gl.glCompileShader(vertex_shader)
+        area.make_current()
+        # vertex_shader = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        # gl.glShaderSource(vertex_shader, VERTEX_SHADER_SRC)
+        # gl.glCompileShader(vertex_shader)
         #assert gl.glGetShaderiv(vertex_shader, gl.GL_COMPILE_STATUS)
 
+    def get_val(self, t, n):
+        if t <= n and t >= n - 1:
+            return t - n + 1
+        elif t > n and t < n + 1:
+            return n + 1 - t
+        else:
+            return 0
+
+
     def on_render(self, area: Gtk.GLArea, context):
-        val = time.time() % 1
-        print("test")
-        gl.glClearColor(val, val, val, 1.0)
+        r = self.get_val((time.time() % 6), 1)
+        g = self.get_val((time.time() % 6), 3)
+        b = self.get_val((time.time() % 6), 5)
+        gl.glClearColor(r, g, b, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
         gl.glFlush()
