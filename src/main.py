@@ -46,10 +46,14 @@ class OpenGLWindow(Gtk.ApplicationWindow):
 
         self.set_child(self.gl_area)
 
+        self.last_time = time.time()
+
+        #GLib.timeout_add(1000 // 60, self.test)
         GLib.timeout_add(1000 // 60, self.test)
 
     def test(self):
-        self.gl_area.queue_draw()
+        #self.gl_area.queue_draw()
+        self.gl_area.queue_render()
         return True
 
     def on_realize(self, area: Gtk.GLArea):
@@ -75,8 +79,11 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         gl.glClearColor(r, g, b, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        gl.glFlush()
+        print(round(1 / (time.time() - self.last_time)))
+        self.last_time = time.time()
 
+        gl.glFlush()
+        self.gl_area.queue_draw()
         return True
 
 
