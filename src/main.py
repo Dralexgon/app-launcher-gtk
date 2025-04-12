@@ -4,6 +4,7 @@ from gi.repository import Gtk, GLib
 
 import time
 import OpenGL.GL as gl
+import numpy as np
 
 class OpenGLWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
@@ -16,8 +17,9 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.gl_area.set_required_version(3, 2)
         self.gl_area.connect("realize", self.on_realize)
         self.gl_area.connect("render", self.on_render)
-
         self.set_child(self.gl_area)
+
+        self.vao = None
 
         self.fps_count = 0
         self.fps_timer = time.time()
@@ -41,11 +43,36 @@ class OpenGLWindow(Gtk.ApplicationWindow):
 
 
     def on_render(self, area: Gtk.GLArea, context):
-        r = self.get_val((time.time() % 6), 1)
-        g = self.get_val((time.time() % 6), 3)
-        b = self.get_val((time.time() % 6), 5)
-        gl.glClearColor(r, g, b, 1.0)
+        # Triangle data (3 vertices, 2D positions + RGB colors)
+        vertices = np.array([
+            # Position    # Color
+            -0.5, -0.5,   1.0, 0.0, 0.0,  # Bottom left, red
+             0.5, -0.5,   0.0, 1.0, 0.0,  # Bottom right, green
+             0.0,  0.5,   0.0, 0.0, 1.0,  # Top center, blue
+        ], dtype=np.float32)
+
+        self.vao = gl.glGenVertexArrays(1)
+        vbo = gl.glGenBuffers(1)
+
+        gl.glBindVertexArray(self.vao)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+
+        # position attribute
+        gl.glEnableVertexAttribArray(0)
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, False, 20, gl.ctypes.c_void_p(0))
+        # color attribute
+        gl.glEnableVertexAttribArray(1)
+        gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, False, 20, gl.ctypes.c_void_p(8))
+
+        gl.glBindVertexArray(0)
+
+        gl.glClearColor(0.1, 0.1, 0.1, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+
+        gl.glBindVertexArray(self.vao)
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, 3)
+        gl.glBindVertexArray(0)
 
         self.fps_count += 1
         if time.time() - self.fps_timer >= 1:
@@ -53,8 +80,6 @@ class OpenGLWindow(Gtk.ApplicationWindow):
             self.fps_count = 0
             self.fps_timer = time.time()
 
-        gl.glFlush()
-        self.gl_area.queue_draw()
         return True
 
 

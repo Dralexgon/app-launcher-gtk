@@ -22,9 +22,9 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         self.fps_count = 0
         self.fps_timer = time.time()
 
-        GLib.timeout_add(1000 // 60, self.test)
+        GLib.timeout_add(1000 // 60, self.update_frame)
 
-    def test(self):
+    def update_frame(self):
         self.gl_area.queue_render()
         return True
 
@@ -53,8 +53,6 @@ class OpenGLWindow(Gtk.ApplicationWindow):
             self.fps_count = 0
             self.fps_timer = time.time()
 
-        gl.glFlush()
-        self.gl_area.queue_draw()
         return True
 
 
