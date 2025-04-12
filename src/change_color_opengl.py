@@ -19,22 +19,17 @@ class OpenGLWindow(Gtk.ApplicationWindow):
 
         self.set_child(self.gl_area)
 
-        self.last_time = time.time()
+        self.fps_count = 0
+        self.fps_timer = time.time()
 
-        #GLib.timeout_add(1000 // 60, self.test)
         GLib.timeout_add(1000 // 60, self.test)
 
     def test(self):
-        #self.gl_area.queue_draw()
         self.gl_area.queue_render()
         return True
 
     def on_realize(self, area: Gtk.GLArea):
         area.make_current()
-        # vertex_shader = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-        # gl.glShaderSource(vertex_shader, VERTEX_SHADER_SRC)
-        # gl.glCompileShader(vertex_shader)
-        #assert gl.glGetShaderiv(vertex_shader, gl.GL_COMPILE_STATUS)
 
     def get_val(self, t, n):
         if t <= n and t >= n - 1:
@@ -52,8 +47,11 @@ class OpenGLWindow(Gtk.ApplicationWindow):
         gl.glClearColor(r, g, b, 1.0)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        print(round(1 / (time.time() - self.last_time)))
-        self.last_time = time.time()
+        self.fps_count += 1
+        if time.time() - self.fps_timer >= 1:
+            print(f"FPS: {self.fps_count}")
+            self.fps_count = 0
+            self.fps_timer = time.time()
 
         gl.glFlush()
         self.gl_area.queue_draw()
